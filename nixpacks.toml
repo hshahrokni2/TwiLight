@@ -1,0 +1,12 @@
+
+[phases.setup]
+nixPkgs = ['python310', 'postgresql']
+
+[phases.install]
+cmds = ['pip install -r requirements.txt']
+
+[phases.build]
+cmds = ['python init_db.py']
+
+[start]
+cmd = 'python stunning_dashboard.py'

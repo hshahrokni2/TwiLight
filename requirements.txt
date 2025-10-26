@@ -1,0 +1,14 @@
+dash==2.14.2
+dash-bootstrap-components==1.5.0
+plotly==5.18.0
+psycopg2-binary==2.9.9
+pandas==2.1.4
+flask==3.0.0
+flask-login==0.6.3
+werkzeug==3.0.1
+openai==0.28.1
+redis==5.0.1
+ccxt==4.3.98
+python-telegram-bot==20.7
+requests==2.31.0
+numpy==1.26.2
