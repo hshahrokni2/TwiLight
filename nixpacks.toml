@@ -1,9 +1,10 @@
 
 [phases.setup]
-nixPkgs = ['python310', 'python310Packages.pip', 'postgresql', 'bash']
+nixPkgs = ['python310', 'python310Packages.pip', 'python310Packages.virtualenv', 'postgresql', 'bash']
+cmds = ['python -m venv /opt/venv']
 
 [phases.install]
-cmds = ['pip install --no-cache-dir -r requirements.txt']
+cmds = ['/opt/venv/bin/pip install --no-cache-dir -r requirements.txt']
 
 [start]
-cmd = 'bash railway_start.sh'
+cmd = 'source /opt/venv/bin/activate && bash railway_start.sh'
