@@ -2,6 +2,59 @@
 import os
 import json
 from typing import Dict, Any, Optional
+import urllib.parse as urlparse
+
+def parse_redis_url(redis_url: str) -> Dict[str, Any]:
+    """
+    Parse Redis URL into connection parameters dict.
+    Handles both Railway Redis URL format and local Redis.
+    
+    Examples:
+    - redis://localhost:6379 -> {'host': 'localhost', 'port': 6379}
+    - redis://:password@host:port/db -> {'host': 'host', 'port': port, 'password': 'password', 'db': db}
+    """
+    try:
+        if not redis_url or redis_url == '':
+            # Fallback to local Redis
+            return {
+                'host': 'localhost',
+                'port': 6379,
+                'db': 0,
+                'decode_responses': True
+            }
+        
+        # Parse the URL
+        parsed = urlparse.urlparse(redis_url)
+        
+        redis_config = {
+            'host': parsed.hostname or 'localhost',
+            'port': parsed.port or 6379,
+            'decode_responses': True
+        }
+        
+        # Add password if present
+        if parsed.password:
+            redis_config['password'] = parsed.password
+        
+        # Add database number if present in path
+        if parsed.path and len(parsed.path) > 1:
+            try:
+                redis_config['db'] = int(parsed.path[1:])
+            except ValueError:
+                redis_config['db'] = 0
+        else:
+            redis_config['db'] = 0
+        
+        return redis_config
+    except Exception as e:
+        print(f"⚠️  Error parsing Redis URL: {e}")
+        # Fallback to local Redis
+        return {
+            'host': 'localhost',
+            'port': 6379,
+            'db': 0,
+            'decode_responses': True
+        }
 
 def safe_int_conversion(value: str, default: int) -> int:
     """
@@ -65,6 +118,7 @@ def load_config() -> Dict[str, Any]:
             },
             "database_url": db_url,
             "redis_url": redis_url,
+            "redis": parse_redis_url(redis_url),  # Parse Redis URL into connection dict
             "risk_management": {
                 "max_position_size": float(os.getenv('MAX_POSITION_SIZE', '0.1')),
                 "max_daily_loss": float(os.getenv('MAX_DAILY_LOSS', '0.05')),

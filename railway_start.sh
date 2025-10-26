@@ -49,14 +49,43 @@ python agents/execution_agent.py &
 AGENT_PIDS[6]=$!
 echo "   ✅ Execution Agent started (PID: ${AGENT_PIDS[6]})"
 
+# Function to validate Telegram token
+is_valid_telegram_token() {
+    local token="$1"
+    # Check if token is empty, placeholder, or invalid format
+    if [ -z "$token" ]; then
+        return 1
+    fi
+    
+    # Check for common placeholder patterns
+    if [[ "$token" == "your_telegram_bot_token_here" ]] || \
+       [[ "$token" == "YOUR_TOKEN_HERE" ]] || \
+       [[ "$token" == "placeholder" ]] || \
+       [[ "$token" == "PLACEHOLDER" ]] || \
+       [[ "$token" == "your_token" ]]; then
+        return 1
+    fi
+    
+    # Basic format check: Telegram bot tokens are in format: 123456789:ABCdefGHIjklMNOpqrsTUVwxyz
+    if [[ ! "$token" =~ ^[0-9]+:[A-Za-z0-9_-]+$ ]]; then
+        return 1
+    fi
+    
+    return 0
+}
+
 # Start Telegram bot in background
-if [ -n "$TELEGRAM_BOT_TOKEN" ]; then
+if [ -n "$TELEGRAM_BOT_TOKEN" ] && is_valid_telegram_token "$TELEGRAM_BOT_TOKEN"; then
     echo "📱 Starting Telegram bot..."
     python telegram_bot.py &
     TELEGRAM_PID=$!
     echo "   ✅ Telegram Bot started (PID: $TELEGRAM_PID)"
 else
-    echo "   ⚠️  Telegram bot skipped (TELEGRAM_BOT_TOKEN not set)"
+    if [ -n "$TELEGRAM_BOT_TOKEN" ]; then
+        echo "   ⚠️  Telegram bot skipped (invalid or placeholder token detected)"
+    else
+        echo "   ⚠️  Telegram bot skipped (TELEGRAM_BOT_TOKEN not set)"
+    fi
 fi
 
 # Wait a moment for agents to initialize

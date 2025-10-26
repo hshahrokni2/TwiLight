@@ -10,6 +10,7 @@ import dash_auth
 import plotly.graph_objs as go
 import ccxt
 import json
+import os
 import time
 from datetime import datetime, timedelta
 import threading
@@ -1841,13 +1842,28 @@ def update_chat(n_clicks, n_intervals, user_message):
         clear_input = '' if (n_clicks and n_clicks > 0 and user_message) else dash.no_update
         return html.Div(messages), clear_input
 
+# Expose the Flask server for production deployment (gunicorn)
+server = app.server
+
 if __name__ == '__main__':
+    # Get port from environment variable (Railway compatibility)
+    port = int(os.getenv('PORT', '8050'))
+    
+    # Check if we should use production server
+    use_production = os.getenv('USE_PRODUCTION_SERVER', 'false').lower() == 'true'
+    
     print("🚀 Starting STUNNING Crypto Trading Dashboard...")
     print("📊 REAL Exchange Data: Enabled")
     print("🤖 GPT-5 with Function Calling: Enabled")
     print("⚙️ Agent Insights: Enabled")
     print("🔍 Enhanced Error Logging: Enabled")
-    print("\n✅ Dashboard running on http://0.0.0.0:3000")
+    print(f"\n✅ Dashboard running on http://0.0.0.0:{port}")
     print("🔑 Username: admin | Password: CryptoTrader2024!")
     
-    app.run(host='0.0.0.0', port=3000, debug=False)
+    if use_production:
+        print("🏭 Using Gunicorn production server")
+        # When using gunicorn, it will handle the server startup
+        # Start with: gunicorn stunning_dashboard:server -b 0.0.0.0:$PORT
+    else:
+        print("🔧 Using Flask development server")
+        app.run(host='0.0.0.0', port=port, debug=False)
