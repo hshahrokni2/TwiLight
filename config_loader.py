@@ -1,7 +1,21 @@
 
 import os
 import json
-from typing import Dict, Any
+from typing import Dict, Any, Optional
+
+def safe_int_conversion(value: str, default: int) -> int:
+    """
+    Safely convert a string to integer with fallback to default.
+    Handles invalid/placeholder values gracefully.
+    """
+    try:
+        # Strip whitespace and check if it's a valid integer
+        if value and value.strip() and value.strip().lstrip('-').isdigit():
+            return int(value.strip())
+        else:
+            return default
+    except (ValueError, AttributeError):
+        return default
 
 def load_config() -> Dict[str, Any]:
     """
@@ -65,8 +79,8 @@ def load_config() -> Dict[str, Any]:
             ],
             "telegram": {
                 "bot_token": os.getenv('TELEGRAM_BOT_TOKEN', ''),
-                "user_id": int(os.getenv('TELEGRAM_USER_ID', '7171577450')),
-                "group_chat_id": int(os.getenv('TELEGRAM_GROUP_CHAT_ID', '-4800163944'))
+                "user_id": safe_int_conversion(os.getenv('TELEGRAM_USER_ID', '7171577450'), 7171577450),
+                "group_chat_id": safe_int_conversion(os.getenv('TELEGRAM_GROUP_CHAT_ID', '-4800163944'), -4800163944)
             },
             # Legacy keys for backward compatibility
             "binance_api_key": os.getenv('BINANCE_API_KEY', ''),
