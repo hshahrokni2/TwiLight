@@ -1,12 +1,9 @@
 
 [phases.setup]
-nixPkgs = ['python310', 'python310Packages.pip', 'postgresql']
+nixPkgs = ['python310', 'python310Packages.pip', 'postgresql', 'bash']
 
 [phases.install]
 cmds = ['pip install --no-cache-dir -r requirements.txt']
 
-[phases.build]
-cmds = ['python init_db.py']
-
 [start]
-cmd = 'python stunning_dashboard.py'
+cmd = 'bash railway_start.sh'

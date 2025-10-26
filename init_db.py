@@ -1,39 +1,76 @@
 
 import psycopg2
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
+import os
+import sys
 
 def init_database():
-    # Connect to PostgreSQL server
-    conn = psycopg2.connect(
-        host="localhost",
-        user="postgres",
-        password="postgres"
-    )
+    # Check if we're on Railway or local
+    database_url = os.getenv('DATABASE_URL')
+    
+    if database_url:
+        # On Railway, database is already created - just initialize tables
+        print("🌐 Running on Railway - using provided database")
+        try:
+            # Parse DATABASE_URL
+            import urllib.parse as urlparse
+            url = urlparse.urlparse(database_url)
+            
+            conn = psycopg2.connect(
+                host=url.hostname,
+                port=url.port or 5432,
+                database=url.path[1:],
+                user=url.username,
+                password=url.password
+            )
+        except Exception as e:
+            print(f"❌ Error connecting to Railway database: {e}")
+            print("⚠️  Continuing without database initialization...")
+            return
+    else:
+        # Local development - create database if needed
+        print("🏠 Running locally - setting up local database")
+        try:
+            conn = psycopg2.connect(
+                host="localhost",
+                user="postgres",
+                password="postgres"
+            )
+        except Exception as e:
+            print(f"❌ Error connecting to local PostgreSQL: {e}")
+            print("⚠️  Make sure PostgreSQL is running locally")
+            sys.exit(1)
+    
     conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
     cursor = conn.cursor()
     
-    # Create database
-    cursor.execute("DROP DATABASE IF EXISTS crypto_trading")
-    cursor.execute("CREATE DATABASE crypto_trading")
-    print("Database created successfully")
-    
-    # Create user
-    cursor.execute("DROP USER IF EXISTS trader")
-    cursor.execute("CREATE USER trader WITH PASSWORD 'trader_password_2024'")
-    cursor.execute("GRANT ALL PRIVILEGES ON DATABASE crypto_trading TO trader")
-    print("User created successfully")
-    
-    cursor.close()
-    conn.close()
-    
-    # Connect to the new database
-    conn = psycopg2.connect(
-        host="localhost",
-        database="crypto_trading",
-        user="trader",
-        password="trader_password_2024"
-    )
-    cursor = conn.cursor()
+    if not database_url:
+        # Only create database and user for local development
+        # Create database
+        cursor.execute("DROP DATABASE IF EXISTS crypto_trading")
+        cursor.execute("CREATE DATABASE crypto_trading")
+        print("Database created successfully")
+        
+        # Create user
+        cursor.execute("DROP USER IF EXISTS trader")
+        cursor.execute("CREATE USER trader WITH PASSWORD 'trader_password_2024'")
+        cursor.execute("GRANT ALL PRIVILEGES ON DATABASE crypto_trading TO trader")
+        print("User created successfully")
+        
+        cursor.close()
+        conn.close()
+        
+        # Connect to the new database
+        conn = psycopg2.connect(
+            host="localhost",
+            database="crypto_trading",
+            user="trader",
+            password="trader_password_2024"
+        )
+        cursor = conn.cursor()
+    else:
+        # On Railway, already connected to the database
+        print("✅ Connected to Railway database")
     
     # Create tables
     cursor.execute("""

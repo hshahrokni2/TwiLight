@@ -24,8 +24,17 @@ VALID_USERNAME_PASSWORD_PAIRS = {
 }
 
 # Load configuration
-with open('/opt/crypto-trading/config.json', 'r') as f:
-    config = json.load(f)
+try:
+    # Try to use config_loader for environment variables support
+    from config_loader import load_config, get_database_config
+    config = load_config()
+    # Override database config with the parsed version
+    config['database'] = get_database_config()
+except ImportError:
+    # Fallback to direct file loading
+    from get_config_path import get_config_path
+    with open(get_config_path(), 'r') as f:
+        config = json.load(f)
 
 # Initialize OpenAI client for GPT-5
 openai_client = OpenAI(api_key=config.get('openai_api_key'))

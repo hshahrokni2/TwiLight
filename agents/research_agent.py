@@ -7,10 +7,19 @@ import requests
 from datetime import datetime
 import redis
 
+import sys
+import os
+
+# Add parent directory to path to import agent_config_loader
+parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if parent_dir not in sys.path:
+    sys.path.insert(0, parent_dir)
+
+from agent_config_loader import load_agent_config
+
 class ResearchAgent:
-    def __init__(self, config_path='/opt/crypto-trading/config.json'):
-        with open(config_path, 'r') as f:
-            self.config = json.load(f)
+    def __init__(self, config_path='config.json'):
+        self.config = load_agent_config(config_path)
         
         self.db_conn = psycopg2.connect(**self.config['database'])
         self.redis_client = redis.Redis(**self.config['redis'])
