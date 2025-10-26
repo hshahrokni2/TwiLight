@@ -1,0 +1,111 @@
+{
+  "_comment": "This is a template file. Copy to config.json and fill in your API keys for local development",
+  "_railway_note": "On Railway, DO NOT use config.json. Instead, set environment variables in Railway dashboard",
+  
+  "initial_capital": 100,
+  
+  "exchanges": {
+    "binance": {
+      "enabled": true,
+      "api_key": "YOUR_BINANCE_API_KEY_HERE",
+      "api_secret": "YOUR_BINANCE_API_SECRET_HERE"
+    },
+    "kraken": {
+      "enabled": true,
+      "api_key": "YOUR_KRAKEN_API_KEY_HERE",
+      "api_secret": "YOUR_KRAKEN_API_SECRET_HERE"
+    }
+  },
+  
+  "llm_providers": {
+    "openai": {
+      "api_key": "YOUR_OPENAI_API_KEY_HERE",
+      "model": "gpt-4"
+    },
+    "anthropic": {
+      "api_key": "YOUR_ANTHROPIC_API_KEY_HERE",
+      "model": "claude-3-5-sonnet-20241022"
+    },
+    "grok": {
+      "api_key": "YOUR_GROK_API_KEY_HERE",
+      "model": "grok-beta"
+    },
+    "perplexity": {
+      "api_key": "YOUR_PERPLEXITY_API_KEY_HERE",
+      "model": "llama-3.1-sonar-large-128k-online"
+    }
+  },
+  
+  "database": {
+    "host": "localhost",
+    "port": 5432,
+    "database": "crypto_trading",
+    "user": "trader",
+    "password": "trader_password_2024"
+  },
+  
+  "redis": {
+    "host": "localhost",
+    "port": 6379,
+    "db": 0,
+    "decode_responses": true
+  },
+  
+  "risk_management": {
+    "max_position_size": 0.1,
+    "max_daily_loss": 0.05,
+    "stop_loss_percentage": 0.02,
+    "take_profit_percentage": 0.05
+  },
+  
+  "trading_pairs": [
+    "BTC/USDT",
+    "ETH/USDT",
+    "SOL/USDT",
+    "BNB/USDT"
+  ],
+  
+  "telegram": {
+    "bot_token": "YOUR_TELEGRAM_BOT_TOKEN_HERE",
+    "user_id": 7171577450,
+    "group_chat_id": -4800163944
+  },
+  
+  "_environment_variables_for_railway": {
+    "_comment": "Set these in Railway dashboard instead of using config.json",
+    "required": [
+      "DATABASE_URL - Automatically set by Railway when you add PostgreSQL",
+      "KRAKEN_API_KEY - Your Kraken exchange API key",
+      "KRAKEN_API_SECRET - Your Kraken exchange API secret",
+      "BINANCE_API_KEY - Your Binance exchange API key (optional if using Kraken)",
+      "BINANCE_API_SECRET - Your Binance exchange API secret (optional if using Kraken)",
+      "OPENAI_API_KEY - Your OpenAI API key for GPT models"
+    ],
+    "optional": [
+      "ANTHROPIC_API_KEY - Claude API key (optional)",
+      "GROK_API_KEY - Grok API key (optional)",
+      "PERPLEXITY_API_KEY - Perplexity API key (optional)",
+      "TELEGRAM_BOT_TOKEN - Telegram bot token for notifications (optional)",
+      "TELEGRAM_USER_ID - Your Telegram user ID (optional)",
+      "TELEGRAM_GROUP_CHAT_ID - Telegram group chat ID (optional)",
+      "REDIS_URL - Redis connection URL (Railway auto-sets if Redis added)",
+      "INITIAL_CAPITAL - Starting capital amount (default: 100)",
+      "MAX_POSITION_SIZE - Max position size as decimal (default: 0.1)",
+      "MAX_DAILY_LOSS - Max daily loss as decimal (default: 0.05)",
+      "STOP_LOSS_PERCENTAGE - Stop loss percentage (default: 0.02)",
+      "TAKE_PROFIT_PERCENTAGE - Take profit percentage (default: 0.05)"
+    ]
+  },
+  
+  "_legacy_keys": {
+    "_comment": "These are kept for backward compatibility with older agent code",
+    "binance_api_key": "YOUR_BINANCE_API_KEY_HERE",
+    "binance_api_secret": "YOUR_BINANCE_API_SECRET_HERE",
+    "kraken_api_key": "YOUR_KRAKEN_API_KEY_HERE",
+    "kraken_api_secret": "YOUR_KRAKEN_API_SECRET_HERE",
+    "openai_api_key": "YOUR_OPENAI_API_KEY_HERE",
+    "anthropic_api_key": "YOUR_ANTHROPIC_API_KEY_HERE",
+    "grok_api_key": "YOUR_GROK_API_KEY_HERE",
+    "perplexity_api_key": "YOUR_PERPLEXITY_API_KEY_HERE"
+  }
+}

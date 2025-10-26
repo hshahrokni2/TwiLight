@@ -3,6 +3,7 @@ import psycopg2
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 import os
 import sys
+import urllib.parse as urlparse
 
 def init_database():
     # Check if we're on Railway or local
@@ -11,25 +12,36 @@ def init_database():
     if database_url:
         # On Railway, database is already created - just initialize tables
         print("🌐 Running on Railway - using provided database")
+        print(f"📊 DATABASE_URL detected: {database_url[:20]}...")
+        
         try:
             # Parse DATABASE_URL
-            import urllib.parse as urlparse
             url = urlparse.urlparse(database_url)
+            
+            print(f"   Host: {url.hostname}")
+            print(f"   Port: {url.port or 5432}")
+            print(f"   Database: {url.path[1:]}")
+            print(f"   User: {url.username}")
             
             conn = psycopg2.connect(
                 host=url.hostname,
                 port=url.port or 5432,
                 database=url.path[1:],
                 user=url.username,
-                password=url.password
+                password=url.password,
+                connect_timeout=10
             )
+            print("✅ Successfully connected to Railway database!")
         except Exception as e:
             print(f"❌ Error connecting to Railway database: {e}")
-            print("⚠️  Continuing without database initialization...")
-            return
+            print("⚠️  This is a CRITICAL error - system cannot function without database")
+            print("⚠️  Please check that DATABASE_URL is set correctly in Railway")
+            sys.exit(1)
     else:
         # Local development - create database if needed
         print("🏠 Running locally - setting up local database")
+        print("⚠️  DATABASE_URL not found - assuming local PostgreSQL")
+        
         try:
             conn = psycopg2.connect(
                 host="localhost",
@@ -38,7 +50,8 @@ def init_database():
             )
         except Exception as e:
             print(f"❌ Error connecting to local PostgreSQL: {e}")
-            print("⚠️  Make sure PostgreSQL is running locally")
+            print("⚠️  Make sure PostgreSQL is running locally with default credentials")
+            print("⚠️  Or set DATABASE_URL environment variable for cloud deployment")
             sys.exit(1)
     
     conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
